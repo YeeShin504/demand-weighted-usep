@@ -12,3 +12,4 @@ logs/
 # non-published data
 raw_data/
 data/
+!docs/data/
