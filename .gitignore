@@ -1,0 +1,13 @@
+# config
+.vscode
+
+# python
+__pycache__
+*.pyc
+
+# logs
+logs/
+
+# non-published data
+raw_data/
+data/
