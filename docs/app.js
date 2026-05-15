@@ -9,23 +9,49 @@ let allRows = [];
 let latestUpdateIso = null;
 
 function setStatus(message) {
+  if (!statusEl) return;
   statusEl.textContent = message;
 }
 
 function setLastUpdated(isoString) {
-  if (!isoString) {
-    lastUpdatedEl.textContent = "Last updated: unavailable";
-    return;
-  }
+  const repoUrl = "https://github.com/YeeShin504/demand-weighted-usep";
+  const sourceUrl = "https://www.nems.emcsg.com/nems-prices";
 
   const timestamp = new Date(isoString);
-  if (Number.isNaN(timestamp.getTime())) {
-    lastUpdatedEl.textContent = `Last updated: ${isoString}`;
-    return;
-  }
 
-  const exactUtc = timestamp.toISOString().replace(".000Z", "Z");
-  lastUpdatedEl.textContent = `Last updated (UTC): ${exactUtc}`;
+  const formattedTime =
+    isoString && !Number.isNaN(timestamp.getTime())
+      ? timestamp.toLocaleString("en-SG", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+          timeZone: "Asia/Singapore",
+        })
+      : "unavailable";
+
+  lastUpdatedEl.innerHTML = `
+    <div>
+      <strong>Last updated:</strong> ${formattedTime} SGT
+
+      <span style="margin-left: 12px;">
+        <strong>Sources:</strong>
+
+        <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer">
+          NEMS Data Portal
+        </a>
+
+        <span style="margin: 0 8px;">|</span>
+
+        <a href="${repoUrl}" target="_blank" rel="noopener noreferrer">
+          GitHub Repository
+        </a>
+      </span>
+    </div>
+  `;
 }
 
 async function loadData() {
@@ -202,7 +228,7 @@ function draw() {
 
   const layout = {
     title: mode === "daily" ? "USEP / RUSEP - Daily" : `${metricLabel} - Monthly Candlestick`,
-    margin: { t: 50, r: 20, b: 60, l: 60 },
+    margin: { t: 50, r: 20, b: 60, l: 80 },
     xaxis: {
       title: "Date",
       type: "date",
@@ -210,9 +236,10 @@ function draw() {
       rangeslider: mode === "daily" ? { visible: true } : { visible: false },
     },
     yaxis: {
-      title: "Price ($/MWh)",
+      title: { text: "Price ($/MWh)", standoff: 20 },
       fixedrange: false,
       tickformat: ".2f",
+      automargin: true,
     },
     hovermode: mode === "daily" ? "x unified" : "x",
     legend: { x: 0, y: 1 },
