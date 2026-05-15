@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily USEP / RUSEP Viewer</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <h1>Daily USEP / RUSEP</h1>
+        <p class="subtitle">History of Uniform Singapore Energy Prices (USEP / RUSEP)</p>
+      </header>
+
+      <section class="controls" aria-label="Plot controls">
+        <div class="control-group">
+          <label for="mode-select">Mode</label>
+          <select id="mode-select">
+            <option value="daily">Daily (Line)</option>
+            <option value="candlestick">Monthly (Candlestick)</option>
+          </select>
+        </div>
+        <div class="control-group is-hidden" id="candle-metric-group">
+          <label for="candle-metric-select">Candlestick Metric</label>
+          <select id="candle-metric-select">
+            <option value="usep">USEP</option>
+            <option value="rusep">RUSEP</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="chart-wrap">
+        <div id="plot" class="plot" aria-label="Time-series plot"></div>
+      </section>
+
+      <section class="meta">
+        <div id="status"></div>
+        <div id="last-updated"></div>
+      </section>
+    </main>
+  </body>
+</html>
