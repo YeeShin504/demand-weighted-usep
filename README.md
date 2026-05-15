@@ -28,15 +28,15 @@ This repository aims to:
 
 The demand-weighted USEP is calculated as:
 
-\[
+$$
 \text{DW-USEP} = \frac{\sum \limits*{t=1}^{48} P_t D_t}{\sum \limits*{t=1}^{48} D_t}
-\]
+$$
 
 where:
 
-- \(P_t\) = half-hourly USEP,
-- \(D_t\) = half-hourly electricity demand,
-- \(t\) = settlement interval. A day is divided into 48 half-hourly intervals.
+- $P_t$ = half-hourly USEP,
+- $D_t$ = half-hourly electricity demand,
+- $t$ = settlement interval. A day is divided into 48 half-hourly intervals.
 
 This weighting approach gives greater influence to periods with higher electricity consumption and produces a metric that is more representative of the average cost of electricity under actual demand conditions.
 
