@@ -1,5 +1,10 @@
 {
   "years": [
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
     2021,
     2022,
     2023,
@@ -8,6 +13,11 @@
     2026
   ],
   "files": [
+    "2016_daily_data.json",
+    "2017_daily_data.json",
+    "2018_daily_data.json",
+    "2019_daily_data.json",
+    "2020_daily_data.json",
     "2021_daily_data.json",
     "2022_daily_data.json",
     "2023_daily_data.json",
