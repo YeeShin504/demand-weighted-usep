@@ -29,7 +29,7 @@ This repository aims to:
 The demand-weighted USEP is calculated as:
 
 $$
-\text{DW-USEP} = \frac{\sum \limits*{t=1}^{48} P_t D_t}{\sum \limits*{t=1}^{48} D_t}
+\text{DW-USEP} = \frac{\sum \limits_{t=1}^{48} P_t D_t}{\sum \limits_{t=1}^{48} D_t}
 $$
 
 where:
