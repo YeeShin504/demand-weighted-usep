@@ -208,6 +208,68 @@ function syncControlVisibility() {
   candleMetricGroup.classList.toggle("is-hidden", !isCandlestick);
 }
 
+function getYAxisBoundsForXRange(xMin, xMax) {
+  // Calculate y-axis bounds for only data points within the given x-range
+  // xMin and xMax can be ISO strings or dates, extract the date part
+  const xMinStr = typeof xMin === 'string' ? xMin.split('T')[0] : new Date(xMin).toISOString().split('T')[0];
+  const xMaxStr = typeof xMax === 'string' ? xMax.split('T')[0] : new Date(xMax).toISOString().split('T')[0];
+
+  let minPrice = Infinity;
+  let maxPrice = -Infinity;
+
+  allRows.forEach((row) => {
+    if (row.date >= xMinStr && row.date <= xMaxStr) {
+      if (row.usep !== null && row.usep !== undefined) {
+        minPrice = Math.min(minPrice, row.usep);
+        maxPrice = Math.max(maxPrice, row.usep);
+      }
+      if (row.rusep !== null && row.rusep !== undefined) {
+        minPrice = Math.min(minPrice, row.rusep);
+        maxPrice = Math.max(maxPrice, row.rusep);
+      }
+      if (row.usep !== null && row.usep !== undefined && row.rusep !== null && row.rusep !== undefined) {
+        const diff = row.rusep - row.usep;
+        minPrice = Math.min(minPrice, diff);
+        maxPrice = Math.max(maxPrice, diff);
+      }
+    }
+  });
+
+  // If no data found, return null (let Plotly auto-scale)
+  if (minPrice === Infinity || maxPrice === -Infinity) {
+    return null;
+  }
+
+  // Add 5% margin for visual padding
+  const margin = (maxPrice - minPrice) * 0.05;
+  return [minPrice - margin, maxPrice + margin];
+}
+
+function computeYAxisBoundsAndDefaultXRange() {
+  if (allRows.length === 0) {
+    return {
+      xaxisRange: null,
+      yaxisRange: null,
+    };
+  }
+
+  // Find latest date and calculate 365 days before
+  const latestDate = new Date(allRows[allRows.length - 1].date + "T00:00:00Z");
+  const startDate = new Date(latestDate);
+  startDate.setUTCDate(startDate.getUTCDate() - 365);
+  
+  const startDateStr = startDate.toISOString().split('T')[0];
+  const endDateStr = allRows[allRows.length - 1].date;
+
+  // Compute y-axis bounds for the 365-day window only
+  const yaxisRange = getYAxisBoundsForXRange(startDateStr, endDateStr);
+
+  return {
+    xaxisRange: [startDateStr, endDateStr],
+    yaxisRange: yaxisRange,
+  };
+}
+
 function draw() {
   const mode = modeSelect.value;
   syncControlVisibility();
@@ -225,6 +287,7 @@ function draw() {
 
   const traces = mode === "daily" ? createDailyTraces() : createCandleTraces();
   const metricLabel = candleMetricSelect.value.toUpperCase();
+  const { xaxisRange, yaxisRange } = computeYAxisBoundsAndDefaultXRange();
 
   const layout = {
     title: mode === "daily" ? "USEP / RUSEP - Daily" : `${metricLabel} - Monthly Candlestick`,
@@ -234,12 +297,14 @@ function draw() {
       type: "date",
       hoverformat: "%Y-%m-%d",
       rangeslider: mode === "daily" ? { visible: true } : { visible: false },
+      range: xaxisRange,
     },
     yaxis: {
       title: { text: "Price ($/MWh)", standoff: 20 },
       fixedrange: false,
       tickformat: ".2f",
       automargin: true,
+      range: yaxisRange,
     },
     hovermode: mode === "daily" ? "x unified" : "x",
     legend: { x: 0, y: 1 },
@@ -252,6 +317,18 @@ function draw() {
   };
 
   Plotly.newPlot(plotEl, traces, layout, config);
+
+  // Update y-axis when user adjusts x-range (rangeslider)
+  plotEl.on('plotly_relayout', function(eventData) {
+    if (eventData['xaxis.range']) {
+      const xMin = eventData['xaxis.range'][0];
+      const xMax = eventData['xaxis.range'][1];
+      const newYRange = getYAxisBoundsForXRange(xMin, xMax);
+      if (newYRange !== null) {
+        Plotly.relayout(plotEl, { 'yaxis.range': newYRange });
+      }
+    }
+  });
 
   const first = allRows[0]?.date;
   const last = allRows[allRows.length - 1]?.date;

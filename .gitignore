@@ -4,7 +4,10 @@
 # python
 __pycache__
 *.pyc
+
+# private scripts
 *.py
+*.sh
 
 # logs
 logs/
